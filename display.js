@@ -1,27 +1,54 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const app = initializeApp({
+// Firebase config
+const firebaseConfig = {
   apiKey: "AIzaSyAf6eqoN3dh5YfhQYkUB1xlrVeXOOcL0GM",
   authDomain: "ragequit-meter.firebaseapp.com",
   databaseURL: "https://ragequit-meter-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "ragequit-meter",
-  storageBucket: "ragequit-meter.firebasestorage.app",
+  storageBucket: "ragequit-meter.appspot.com",
   messagingSenderId: "927846193524",
   appId: "1:927846193524:web:8596901261f475cea27421"
-});
+};
 
+const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// DOM refs
 const svg = document.getElementById("gauge");
 const label = document.getElementById("levelLabel");
-const sound = document.getElementById("rageSound");
+const soundBanner = document.getElementById("soundWarning");
+const enableBtn = document.getElementById("enableSoundBtn");
 
+const rageLabels = [
+  "🧘 Chill", "⚠️ Warning", "😡 Mad",
+  "🤬 Critical", "💀 Danger", "🚨 EVACUATE"
+];
 const colors = ["green", "limegreen", "yellow", "orange", "orangered", "red"];
-const rageLabels = ["🧘 Chill", "⚠️ Warning", "😡 Mad", "🤬 Critical", "💀 Danger", "🚨 EVACUATE"];
 
+// Sound
+const alertSound = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
+alertSound.volume = 0.3;
+let soundEnabled = false;
+
+enableBtn.onclick = () => {
+  alertSound.play().catch(() => {});
+  soundEnabled = true;
+  soundBanner.style.display = "none";
+};
+
+// Math
 function polarToCartesian(cx, cy, r, angleDeg) {
   const rad = (angleDeg - 90) * Math.PI / 180;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  return {
+    x: cx + r * Math.cos(rad),
+    y: cy + r * Math.sin(rad)
+  };
 }
 
 function describeArc(cx, cy, r, startAngle, endAngle) {
@@ -33,32 +60,39 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
 
 function drawMeter(level) {
   svg.innerHTML = "";
+
+  // Background arcs
   for (let i = 0; i < 6; i++) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", describeArc(150, 150, 100, -90 + i * 30, -90 + (i + 1) * 30));
+    const startAngle = -90 + i * 30;
+    const endAngle = -90 + (i + 1) * 30;
+    path.setAttribute("d", describeArc(150, 150, 75, startAngle, endAngle));
     path.setAttribute("fill", colors[i]);
     svg.appendChild(path);
   }
 
+  // Needle
+  const angle = -95 + (level - 0.5) * 30;
+  const pos = polarToCartesian(150, 150, 75, angle);
   const needle = document.createElementNS("http://www.w3.org/2000/svg", "line");
   needle.setAttribute("x1", "150");
   needle.setAttribute("y1", "150");
-  const pos = polarToCartesian(150, 150, 100, -95 + (level - 0.5) * 30);
   needle.setAttribute("x2", pos.x);
   needle.setAttribute("y2", pos.y);
-  needle.setAttribute("stroke", "darkred");
+  needle.setAttribute("stroke", "#cc0000");
   needle.setAttribute("stroke-width", "4");
+  needle.setAttribute("id", "needle");
   svg.appendChild(needle);
 }
 
-let lastLevel = null;
+// Live Firebase sync
 onValue(ref(db, "rageLevel"), snapshot => {
   const level = snapshot.val();
-  if (level !== lastLevel) {
-    sound.currentTime = 0;
-    sound.play();
-    lastLevel = level;
+  if (level >= 1 && level <= 6) {
+    drawMeter(level);
+    label.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
+    if (soundEnabled) {
+      alertSound.play().catch(() => {});
+    }
   }
-  drawMeter(level);
-  label.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
 });
