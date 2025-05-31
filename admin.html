@@ -3,77 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ragequit Admin</title>
+  <title>Ragequit Admin Panel</title>
   <script type="module" src="admin.js" defer></script>
   <style>
     body {
       margin: 0;
       font-family: monospace;
       background-color: black;
-      color: lime;
+      color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
     }
 
     .container {
       width: 90%;
-      max-width: 1000px;
+      max-width: 1100px;
       text-align: center;
     }
 
     h1 {
       font-size: 3em;
-      margin-bottom: 1em;
+      margin-bottom: 20px;
     }
 
-    input[type="range"] {
-      width: 100%;
-      height: 40px;
-    }
-
-    #status {
-      margin-top: 2em;
-      font-size: 2em;
-    }
-
-    .level-ref {
-      margin-top: 2em;
-      text-align: left;
-      font-size: 1.5em;
-    }
-
-    button {
-      margin-top: 20px;
+    #loginBtn {
+      padding: 12px 24px;
       font-size: 1.2em;
-      padding: 10px 20px;
-      background: lime;
+      background: orange;
       border: none;
       color: black;
       cursor: pointer;
+      border-radius: 6px;
+      margin-bottom: 30px;
+    }
+
+    #rageSlider {
+      width: 100%;
+      max-width: 800px;
+      height: 40px;
+    }
+
+    #levelText {
+      margin-top: 20px;
+      font-size: 2em;
+      color: orange;
+    }
+
+    #levelGuide {
+      margin-top: 40px;
+      font-size: 1.3em;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     #logout {
-      margin-top: 2em;
+      margin-top: 40px;
+      padding: 10px 20px;
       font-size: 1em;
+      background: #444;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Ragequit Meter – Admin Panel</h1>
-    <input type="range" min="1" max="6" id="rangeInput" />
-    <div id="status">Loading current level…</div>
-    <div class="level-ref">
-      <p>1 – 🧘 Chill</p>
-      <p>2 – ⚠️ Warning</p>
-      <p>3 – 😡 Mad</p>
-      <p>4 – 🤬 Critical</p>
-      <p>5 – 💀 Danger</p>
-      <p>6 – 🚨 EVACUATE</p>
+    <h1>🛠 Ragequit Meter – Admin Panel</h1>
+    <button id="loginBtn">Sign in with Google</button>
+    <div id="adminPanel" style="display: none;">
+      <input type="range" min="1" max="6" id="rageSlider" />
+      <div id="levelText">Loading…</div>
+      <div id="levelGuide">
+        <p>1 – 🧘 Chill</p>
+        <p>2 – ⚠️ Warning</p>
+        <p>3 – 😡 Mad</p>
+        <p>4 – 🤬 Critical</p>
+        <p>5 – 💀 Danger</p>
+        <p>6 – 🚨 EVACUATE</p>
+      </div>
+      <button id="logout">Logout</button>
     </div>
-    <button id="logout">Logout</button>
   </div>
 </body>
 </html>
