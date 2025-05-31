@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Ragequit Meter – Admin</title>
+  <title>Ragequit Admin Panel</title>
   <style>
     body {
       background: black;
@@ -10,38 +10,53 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
       margin: 0;
     }
 
     h1 {
-      font-size: 2em;
       margin-bottom: 20px;
     }
 
-    #user {
-      margin: 10px;
+    #mainContainer {
+      display: flex;
+      flex-direction: row;
+      gap: 40px;
+      margin-top: 30px;
     }
 
-    button {
-      background: black;
-      border: 1px solid lime;
-      color: lime;
-      padding: 10px 20px;
-      margin: 5px;
-      cursor: pointer;
-      font-family: monospace;
+    #sliderSection {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     input[type=range] {
       width: 300px;
-      margin-top: 20px;
     }
 
-    #rageValue {
-      margin-left: 10px;
-      font-weight: bold;
+    #currentLevel {
+      margin-top: 15px;
+      font-size: 1.2em;
+      text-align: center;
+    }
+
+    #levelReference {
+      text-align: left;
+      border-left: 2px solid lime;
+      padding-left: 20px;
+    }
+
+    button {
+      background: black;
+      color: lime;
+      border: 1px solid lime;
+      padding: 8px 16px;
+      font-family: monospace;
+      margin: 5px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -52,8 +67,26 @@
   <button id="signIn">🔐 Sign In with Google</button>
   <button id="signOut" style="display:none">🚪 Sign Out</button>
 
-  <input type="range" id="rageSlider" min="1" max="6" value="1" disabled>
-  <span id="rageValue">1</span>
+  <div id="mainContainer">
+    <!-- Slider + Current Level Info -->
+    <div id="sliderSection">
+      <input type="range" id="rageSlider" min="1" max="6" value="1" disabled>
+      <div id="currentLevel">
+        <strong>Level:</strong> <span id="rageValue">1</span><br>
+        <strong>Status:</strong> <span id="rageLabel">🧘 Chill</span>
+      </div>
+    </div>
+
+    <!-- Reference panel -->
+    <div id="levelReference">
+      <div><strong>1</strong> – 🧘 Chill</div>
+      <div><strong>2</strong> – ⚠️ Warning</div>
+      <div><strong>3</strong> – 😡 Mad</div>
+      <div><strong>4</strong> – 🤬 Critical</div>
+      <div><strong>5</strong> – 💀 Danger</div>
+      <div><strong>6</strong> – 🚨 EVACUATE</div>
+    </div>
+  </div>
 
   <script type="module" src="admin.js"></script>
 </body>
