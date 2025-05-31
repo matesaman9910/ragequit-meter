@@ -3,128 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ragequit Admin Panel</title>
+  <title>Ragequit Admin</title>
+  <script type="module" src="admin.js" defer></script>
   <style>
     body {
-      background-color: #111;
-      color: white;
-      font-family: monospace;
       margin: 0;
-      padding: 20px;
+      font-family: monospace;
+      background-color: black;
+      color: lime;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      text-align: center;
     }
 
     h1 {
-      margin-bottom: 10px;
+      font-size: 3em;
+      margin-bottom: 1em;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 40px;
+    }
+
+    #status {
+      margin-top: 2em;
       font-size: 2em;
-      text-align: center;
     }
 
-    #loginBtn {
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #222;
-      color: white;
-      border: 1px solid #555;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-bottom: 30px;
-    }
-
-    #adminPanel {
-      display: none;
-      width: 100%;
-      max-width: 1100px;
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 60px;
-      flex-wrap: wrap;
-    }
-
-    #mainPanel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    #rageSlider {
-      width: 100%;
-      max-width: 500px;
-      margin-top: 30px;
-    }
-
-    #levelText {
+    .level-ref {
+      margin-top: 2em;
+      text-align: left;
       font-size: 1.5em;
+    }
+
+    button {
       margin-top: 20px;
-      color: orange;
-    }
-
-    #levelsPanel {
-      background: #1a1a1a;
-      border: 2px solid #444;
-      border-radius: 12px;
-      padding: 20px;
-      min-width: 220px;
-      max-height: 330px;
-      box-sizing: border-box;
-    }
-
-    #levelsPanel h3 {
-      margin-top: 0;
-      text-align: center;
       font-size: 1.2em;
-      border-bottom: 1px solid #444;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
+      padding: 10px 20px;
+      background: lime;
+      border: none;
+      color: black;
+      cursor: pointer;
     }
 
-    .levelItem {
-      margin: 10px 0;
-      font-size: 1.1em;
-    }
-
-    @media (max-width: 700px) {
-      #adminPanel {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      #levelsPanel {
-        width: 100%;
-        max-width: 300px;
-        margin-top: 20px;
-      }
+    #logout {
+      margin-top: 2em;
+      font-size: 1em;
     }
   </style>
-  <!-- ✅ DEFER script -->
-  <script type="module" src="admin.js" defer></script>
 </head>
 <body>
-
-  <h1>🛠 Ragequit Meter – Admin Panel</h1>
-  <button id="loginBtn">Sign in with Google</button>
-
-  <div id="adminPanel">
-    <div id="mainPanel">
-      <input type="range" id="rageSlider" min="1" max="6" value="1" disabled />
-      <div id="levelText">Level 1 – 🧘 Chill</div>
+  <div class="container">
+    <h1>Ragequit Meter – Admin Panel</h1>
+    <input type="range" min="1" max="6" id="rangeInput" />
+    <div id="status">Loading current level…</div>
+    <div class="level-ref">
+      <p>1 – 🧘 Chill</p>
+      <p>2 – ⚠️ Warning</p>
+      <p>3 – 😡 Mad</p>
+      <p>4 – 🤬 Critical</p>
+      <p>5 – 💀 Danger</p>
+      <p>6 – 🚨 EVACUATE</p>
     </div>
-
-    <div id="levelsPanel">
-      <h3>Rage Levels:</h3>
-      <div class="levelItem" style="color: green;">1 – 🧘 Chill</div>
-      <div class="levelItem" style="color: limegreen;">2 – ⚠️ Warning</div>
-      <div class="levelItem" style="color: yellow;">3 – 😡 Mad</div>
-      <div class="levelItem" style="color: orange;">4 – 🤬 Critical</div>
-      <div class="levelItem" style="color: orangered;">5 – 💀 Danger</div>
-      <div class="levelItem" style="color: red;">6 – 🚨 EVACUATE</div>
-    </div>
+    <button id="logout">Logout</button>
   </div>
-
 </body>
 </html>
