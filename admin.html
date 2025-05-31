@@ -1,93 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Ragequit Admin Panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ragequit Meter – Admin Panel</title>
   <style>
     body {
-      background: black;
-      color: lime;
+      background-color: #111;
+      color: white;
       font-family: monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
       padding: 20px;
-      margin: 0;
     }
 
-    h1 {
-      margin-bottom: 20px;
-    }
-
-    #mainContainer {
+    #adminPanel {
+      display: none;
+      margin-top: 20px;
+      max-width: 1000px;
+      width: 100%;
       display: flex;
-      flex-direction: row;
       gap: 40px;
-      margin-top: 30px;
+      justify-content: center;
     }
 
-    #sliderSection {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    input[type=range] {
+    #gauge {
       width: 300px;
+      height: 300px;
     }
 
-    #currentLevel {
-      margin-top: 15px;
-      font-size: 1.2em;
-      text-align: center;
+    #rageSlider {
+      width: 300px;
+      margin-top: 20px;
     }
 
-    #levelReference {
-      text-align: left;
-      border-left: 2px solid lime;
-      padding-left: 20px;
+    #levelText, #currentStatus {
+      margin-top: 10px;
+      font-size: 1.4em;
     }
 
-    button {
-      background: black;
-      color: lime;
-      border: 1px solid lime;
-      padding: 8px 16px;
-      font-family: monospace;
-      margin: 5px;
+    #levelsPanel {
+      background-color: #222;
+      padding: 20px;
+      border: 2px solid #444;
+      border-radius: 10px;
+    }
+
+    .levelItem {
+      margin: 10px 0;
+      font-size: 1.1em;
+    }
+
+    #loginBtn {
+      padding: 12px 20px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
       cursor: pointer;
+    }
+
+    #loginBtn:hover {
+      background: #666;
     }
   </style>
 </head>
 <body>
-  <h1>🛠 Ragequit Admin Panel</h1>
 
-  <p id="user">Not signed in</p>
-  <button id="signIn">🔐 Sign In with Google</button>
-  <button id="signOut" style="display:none">🚪 Sign Out</button>
+  <h1>🛠️ Ragequit Meter – Admin Panel</h1>
+  <button id="loginBtn">Sign in with Google</button>
 
-  <div id="mainContainer">
-    <!-- Slider + Current Level Info -->
-    <div id="sliderSection">
-      <input type="range" id="rageSlider" min="1" max="6" value="1" disabled>
-      <div id="currentLevel">
-        <strong>Level:</strong> <span id="rageValue">1</span><br>
-        <strong>Status:</strong> <span id="rageLabel">🧘 Chill</span>
-      </div>
+  <div id="adminPanel">
+    <div id="meterSection">
+      <svg id="gauge" viewBox="0 0 300 300"></svg>
+      <input type="range" id="rageSlider" min="1" max="6" value="1"/>
+      <div id="levelText">Level 1 – 🧘 Chill</div>
+      <div id="currentStatus"></div>
     </div>
 
-    <!-- Reference panel -->
-    <div id="levelReference">
-      <div><strong>1</strong> – 🧘 Chill</div>
-      <div><strong>2</strong> – ⚠️ Warning</div>
-      <div><strong>3</strong> – 😡 Mad</div>
-      <div><strong>4</strong> – 🤬 Critical</div>
-      <div><strong>5</strong> – 💀 Danger</div>
-      <div><strong>6</strong> – 🚨 EVACUATE</div>
+    <div id="levelsPanel">
+      <h3>Rage Levels:</h3>
+      <div class="levelItem" style="color: green;">1 – 🧘 Chill</div>
+      <div class="levelItem" style="color: limegreen;">2 – ⚠️ Warning</div>
+      <div class="levelItem" style="color: yellow;">3 – 😡 Mad</div>
+      <div class="levelItem" style="color: orange;">4 – 🤬 Critical</div>
+      <div class="levelItem" style="color: orangered;">5 – 💀 Danger</div>
+      <div class="levelItem" style="color: red;">6 – 🚨 EVACUATE</div>
     </div>
   </div>
 
+  <!-- Firebase & Script -->
   <script type="module" src="admin.js"></script>
 </body>
 </html>
