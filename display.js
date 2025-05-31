@@ -25,24 +25,31 @@ const label = document.getElementById("levelLabel");
 const soundBanner = document.getElementById("soundWarning");
 const enableBtn = document.getElementById("enableSoundBtn");
 
+// Rage level data
 const rageLabels = [
   "🧘 Chill", "⚠️ Warning", "😡 Mad",
   "🤬 Critical", "💀 Danger", "🚨 EVACUATE"
 ];
 const colors = ["green", "limegreen", "yellow", "orange", "orangered", "red"];
 
-// Sound
+// 🔊 Sound setup
 const alertSound = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
 alertSound.volume = 0.3;
 let soundEnabled = false;
 
-enableBtn.onclick = () => {
-  alertSound.play().catch(() => {});
+// 🟧 Enable sound only after click (NO auto-play on enable)
+if (sessionStorage.getItem("soundEnabled")) {
   soundEnabled = true;
   soundBanner.style.display = "none";
+}
+
+enableBtn.onclick = () => {
+  soundEnabled = true;
+  soundBanner.style.display = "none";
+  sessionStorage.setItem("soundEnabled", "true");
 };
 
-// Math
+// 📐 Math helpers
 function polarToCartesian(cx, cy, r, angleDeg) {
   const rad = (angleDeg - 90) * Math.PI / 180;
   return {
@@ -61,7 +68,7 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
 function drawMeter(level) {
   svg.innerHTML = "";
 
-  // Background arcs
+  // Arcs
   for (let i = 0; i < 6; i++) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const startAngle = -90 + i * 30;
@@ -81,18 +88,28 @@ function drawMeter(level) {
   needle.setAttribute("y2", pos.y);
   needle.setAttribute("stroke", "#cc0000");
   needle.setAttribute("stroke-width", "4");
-  needle.setAttribute("id", "needle");
   svg.appendChild(needle);
 }
 
-// Live Firebase sync
+// 🧠 Track last level so we only play sound on change
+let lastLevel = null;
+
+// 🔁 Sync from Firebase instantly
 onValue(ref(db, "rageLevel"), snapshot => {
   const level = snapshot.val();
   if (level >= 1 && level <= 6) {
     drawMeter(level);
     label.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
-    if (soundEnabled) {
+
+    // 🔊 Play sound only on actual level change
+    if (soundEnabled && level !== lastLevel) {
+      alertSound.pause();
+      alertSound.currentTime = 0;
       alertSound.play().catch(() => {});
     }
+
+    lastLevel = level;
+  } else {
+    label.textContent = "⚠️ Invalid level";
   }
 });
