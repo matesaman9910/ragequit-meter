@@ -1,30 +1,41 @@
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, onValue } from "firebase/database";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// Firebase Config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAf6eqoN3dh5YfhQYkUB1xlrVeXOOcL0GM",
   authDomain: "ragequit-meter.firebaseapp.com",
   databaseURL: "https://ragequit-meter-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "ragequit-meter",
-  storageBucket: "ragequit-meter.appspot.com",
+  storageBucket: "ragequit-meter.firebasestorage.app",
   messagingSenderId: "927846193524",
   appId: "1:927846193524:web:8596901261f475cea27421"
 };
 
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth();
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Elements
+// DOM Elements
 const loginBtn = document.getElementById("loginBtn");
-const meter = document.getElementById("gauge");
-const slider = document.getElementById("rageSlider");
+const rageSlider = document.getElementById("rageSlider");
 const levelText = document.getElementById("levelText");
-const currentStatus = document.getElementById("currentStatus");
 
+// Rage level labels
 const rageLabels = [
   "🧘 Chill",
   "⚠️ Warning",
@@ -34,48 +45,37 @@ const rageLabels = [
   "🚨 EVACUATE"
 ];
 
-// Sound
-const alertSound = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
-alertSound.volume = 0.3; // Reduced volume
+// 🔐 Sign in
+loginBtn.onclick = () => {
+  signInWithPopup(auth, provider).catch(err => {
+    alert("Login failed: " + err.message);
+  });
+};
 
-// Auth
-loginBtn.addEventListener("click", () => {
-  signInWithPopup(auth, provider)
-    .then(result => console.log("Logged in:", result.user.displayName))
-    .catch(error => console.error("Auth error:", error));
-});
-
-// Show UI on auth
+// ✅ Auth state listener
 onAuthStateChanged(auth, user => {
   if (user) {
-    document.getElementById("adminPanel").style.display = "block";
+    loginBtn.style.display = "none";
+    rageSlider.disabled = false;
+    document.getElementById("adminPanel").style.display = "flex";
+  } else {
+    loginBtn.style.display = "block";
+    rageSlider.disabled = true;
+    document.getElementById("adminPanel").style.display = "none";
   }
 });
 
-// Slider -> DB
-slider.addEventListener("input", () => {
-  const level = parseInt(slider.value);
-  set(ref(db, "/level"), level);
-  alertSound.play().catch(() => {}); // Attempt to play, may fail silently until user interacts
-});
+// 🔁 Update Firebase on slider input
+rageSlider.oninput = () => {
+  const level = parseInt(rageSlider.value);
+  set(ref(db, "rageLevel"), level);
+};
 
-// DB -> UI update
-onValue(ref(db, "/level"), snapshot => {
+// 🔁 Sync Firebase to UI
+onValue(ref(db, "rageLevel"), snapshot => {
   const level = snapshot.val();
-  if (!level) return;
-
-  const angle = -95 + (level - 0.5) * 30;
-  const r = 75;
-  const cx = 150, cy = 150;
-  const x = cx + r * Math.cos((angle - 90) * Math.PI / 180);
-  const y = cy + r * Math.sin((angle - 90) * Math.PI / 180);
-
-  const needle = document.getElementById("needle");
-  if (needle) {
-    needle.setAttribute("x2", x);
-    needle.setAttribute("y2", y);
+  if (level >= 1 && level <= 6) {
+    rageSlider.value = level;
+    levelText.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
   }
-
-  levelText.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
-  currentStatus.textContent = `Current: Level ${level} – ${rageLabels[level - 1]}`;
 });
