@@ -1,42 +1,30 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "firebase/auth";
 
-// ✅ Your Firebase config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyAf6eqoN3dh5YfhQYkUB1xlrVeXOOcL0GM",
   authDomain: "ragequit-meter.firebaseapp.com",
   databaseURL: "https://ragequit-meter-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "ragequit-meter",
-  storageBucket: "ragequit-meter.firebasestorage.app",
+  storageBucket: "ragequit-meter.appspot.com",
   messagingSenderId: "927846193524",
   appId: "1:927846193524:web:8596901261f475cea27421"
 };
 
-// ✅ Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getDatabase(app);
+const auth = getAuth();
+const provider = new GoogleAuthProvider();
 
-// ✅ UI references
-const signInBtn = document.getElementById("signIn");
-const signOutBtn = document.getElementById("signOut");
-const userLabel = document.getElementById("user");
+// Elements
+const loginBtn = document.getElementById("loginBtn");
+const meter = document.getElementById("gauge");
 const slider = document.getElementById("rageSlider");
-const rageValue = document.getElementById("rageValue");
-const rageLabel = document.getElementById("rageLabel");
+const levelText = document.getElementById("levelText");
+const currentStatus = document.getElementById("currentStatus");
 
-// ✅ Rage level labels
 const rageLabels = [
   "🧘 Chill",
   "⚠️ Warning",
@@ -46,36 +34,48 @@ const rageLabels = [
   "🚨 EVACUATE"
 ];
 
-// ✅ Sign in with Google
-signInBtn.onclick = () => {
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(auth, provider).catch(err => {
-    alert("Sign in failed: " + err.message);
-  });
-};
+// Sound
+const alertSound = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
+alertSound.volume = 0.3; // Reduced volume
 
-// ✅ Sign out
-signOutBtn.onclick = () => signOut(auth);
+// Auth
+loginBtn.addEventListener("click", () => {
+  signInWithPopup(auth, provider)
+    .then(result => console.log("Logged in:", result.user.displayName))
+    .catch(error => console.error("Auth error:", error));
+});
 
-// ✅ Auth state listener
+// Show UI on auth
 onAuthStateChanged(auth, user => {
   if (user) {
-    userLabel.textContent = `Signed in as ${user.displayName}`;
-    signInBtn.style.display = "none";
-    signOutBtn.style.display = "inline";
-    slider.disabled = false;
-  } else {
-    userLabel.textContent = "Not signed in";
-    signInBtn.style.display = "inline";
-    signOutBtn.style.display = "none";
-    slider.disabled = true;
+    document.getElementById("adminPanel").style.display = "block";
   }
 });
 
-// ✅ Slider input event
-slider.oninput = () => {
+// Slider -> DB
+slider.addEventListener("input", () => {
   const level = parseInt(slider.value);
-  rageValue.textContent = level;
-  rageLabel.textContent = rageLabels[level - 1];
-  set(ref(db, "rageLevel"), level);
-};
+  set(ref(db, "/level"), level);
+  alertSound.play().catch(() => {}); // Attempt to play, may fail silently until user interacts
+});
+
+// DB -> UI update
+onValue(ref(db, "/level"), snapshot => {
+  const level = snapshot.val();
+  if (!level) return;
+
+  const angle = -95 + (level - 0.5) * 30;
+  const r = 75;
+  const cx = 150, cy = 150;
+  const x = cx + r * Math.cos((angle - 90) * Math.PI / 180);
+  const y = cy + r * Math.sin((angle - 90) * Math.PI / 180);
+
+  const needle = document.getElementById("needle");
+  if (needle) {
+    needle.setAttribute("x2", x);
+    needle.setAttribute("y2", y);
+  }
+
+  levelText.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
+  currentStatus.textContent = `Current: Level ${level} – ${rageLabels[level - 1]}`;
+});
