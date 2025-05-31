@@ -4,59 +4,55 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ragequit Meter</title>
+  <script type="module" src="display.js" defer></script>
   <style>
     body {
-      background: black;
-      color: white;
+      margin: 0;
       font-family: monospace;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    #soundWarning {
-      background: #222;
-      color: orange;
-      padding: 15px;
-      font-size: 1em;
-      border-bottom: 2px solid #444;
-    }
-
-    #enableSoundBtn {
-      margin-left: 10px;
-      padding: 6px 12px;
-      background: orange;
-      color: black;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
+      background-color: black;
+      color: lime;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
     }
 
     #gauge {
-      width: 300px;
-      height: 300px;
-      margin: 40px auto 20px auto;
-      display: block;
+      width: 600px;
+      height: 600px;
     }
 
     #levelLabel {
-      font-size: 1.4em;
-      margin-top: 20px;
-      color: orange;
+      font-size: 3em;
+      margin-top: 1em;
+    }
+
+    #soundWarning {
+      position: absolute;
+      top: 10px;
+      background: red;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1.2em;
+      border-radius: 8px;
+      z-index: 100;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      font-size: 1.2em;
     }
   </style>
 </head>
 <body>
-
   <div id="soundWarning">
-    ⚠️ This page uses sound.
-    <button id="enableSoundBtn">Click to enable</button>
+    🔈 This page uses sound. <button id="enableSoundBtn">Enable Sound</button>
   </div>
 
-  <h1>😡 Ragequit Meter</h1>
   <svg id="gauge" viewBox="0 0 300 300"></svg>
-  <div id="levelLabel">Loading...</div>
-
-  <script type="module" src="display.js" defer></script>
+  <div id="levelLabel">Loading…</div>
 </body>
 </html>
