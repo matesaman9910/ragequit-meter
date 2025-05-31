@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ragequit Meter</title>
+  <style>
+    body {
+      font-family: monospace;
+      text-align: center;
+      background: black;
+      color: white;
+    }
+    svg {
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ragequit Meter</h1>
+  <svg id="gauge" viewBox="0 0 300 300"></svg>
+  <h2 id="levelLabel">Loading...</h2>
+  <audio id="rageSound" src="https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3" preload="auto"></audio>
+  <script type="module" src="display.js"></script>
+</body>
+</html>
