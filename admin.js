@@ -1,9 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getAuth,
-  GoogleAuthProvider,
+  onAuthStateChanged,
   signInWithPopup,
-  onAuthStateChanged
+  signOut,
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getDatabase,
@@ -12,7 +13,7 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ✅ Firebase Config
+// ✅ Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAf6eqoN3dh5YfhQYkUB1xlrVeXOOcL0GM",
   authDomain: "ragequit-meter.firebaseapp.com",
@@ -25,16 +26,17 @@ const firebaseConfig = {
 
 // ✅ Init Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getDatabase(app);
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ✅ DOM references (after DOM ready!)
+// ✅ DOM references
 const loginBtn = document.getElementById("loginBtn");
 const rageSlider = document.getElementById("rageSlider");
 const levelText = document.getElementById("levelText");
 const adminPanel = document.getElementById("adminPanel");
 
+// ⏳ Level labels
 const rageLabels = [
   "🧘 Chill",
   "⚠️ Warning",
@@ -44,44 +46,56 @@ const rageLabels = [
   "🚨 EVACUATE"
 ];
 
-// ✅ Button logic
+// ✅ Sign-in handler
 loginBtn.onclick = () => {
   signInWithPopup(auth, provider)
     .then(result => {
-      console.log("Signed in as", result.user.email);
+      console.log("✅ Signed in as:", result.user.email);
     })
-    .catch(error => {
-      console.error("Login failed:", error.message);
-      alert("Sign in failed: " + error.message);
+    .catch(err => {
+      console.error("❌ Login error:", err.message);
     });
 };
 
-// ✅ Auth state listener
+// ✅ Auth listener
 onAuthStateChanged(auth, user => {
   if (user) {
-    console.log("✅ Authenticated as:", user.email);
     loginBtn.style.display = "none";
+    adminPanel.style.display = "block";
     rageSlider.disabled = false;
-    adminPanel.style.display = "flex";
   } else {
-    console.warn("❌ Not signed in");
-    loginBtn.style.display = "block";
-    rageSlider.disabled = true;
+    loginBtn.style.display = "inline-block";
     adminPanel.style.display = "none";
+    rageSlider.disabled = true;
   }
 });
 
-// ✅ Slider updates Firebase
-rageSlider.oninput = () => {
+// ✅ Update Firebase when slider changes
+rageSlider.addEventListener("input", () => {
   const level = parseInt(rageSlider.value);
   set(ref(db, "rageLevel"), level);
-};
+});
 
-// ✅ Firebase updates slider + label
+// ✅ Sync from Firebase
 onValue(ref(db, "rageLevel"), snapshot => {
   const level = snapshot.val();
   if (level >= 1 && level <= 6) {
     rageSlider.value = level;
     levelText.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
+  } else {
+    levelText.textContent = "⚠️ Invalid level";
+  }
+});
+
+// ✅ Logout handler (after DOM ready)
+window.addEventListener("DOMContentLoaded", () => {
+  const logoutBtn = document.getElementById("logout");
+  if (logoutBtn) {
+    logoutBtn.onclick = () => {
+      signOut(auth).then(() => {
+        console.log("🔒 Signed out");
+        location.reload();
+      });
+    };
   }
 });
