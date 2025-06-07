@@ -32,12 +32,31 @@ const rageLabels = [
 ];
 const colors = ["green", "limegreen", "yellow", "orange", "orangered", "red"];
 
-// 🔊 Sound setup
-const alertSound = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
-alertSound.volume = 0.3;
-let soundEnabled = false;
+// Sound setup
+const baseAlert = new Audio("https://file.garden/aACuwggY3QmuIi9B/DEFCON%20alarm%20sound%20effect..mp3");
+baseAlert.volume = 0.3;
 
-// 🟧 Enable sound only after click (NO auto-play on enable)
+const evacSounds = [
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Klaxon%20alarm%20sound%20used%20in%20many%20films%20from%20the%2060's%20-%2070's%20Vol%205%20(Cinesound).mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Warning%20Signal%20Alarm%20with%20Rapid%20Rhythmic%20Buzzing%20Tones.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Boat%20Alarm%20Alert.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Electronic%20Alarm%20sounds%20used%20in%20films%20from%20the%2070's%20-%2080's%20Vol%201%20(Cinesound).mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Intruder%20Alarm%20Sound%20Effect.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Klaxon%20Alarm%20Sound.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Papers%20Please%20Alarm%20Sound%20Effect.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Cool%20alarm%20sound%20and%20screen.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Black%20Mesa%20%F0%9F%9A%A8Rocket%20Engine%20Alarm%20Sound%20Effect%F0%9F%9A%A8.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Black%20Mesa%20%F0%9F%9A%A8Lambda%20Main%20Reactor%20Core%20Alarm%20Sound%20Effect%F0%9F%9A%A8.mp3",
+  "https://file.garden/aACuwggY3QmuIi9B/Alarms/Black%20Mesa%20%F0%9F%9A%A8Emergency%20Tesla%20Discharge%20Alarm%20Sound%20Effect%F0%9F%9A%A8.mp3"
+];
+
+let evacAudioElements = evacSounds.map(url => {
+  const audio = new Audio(url);
+  audio.volume = 0.3;
+  return audio;
+});
+
+let soundEnabled = false;
 if (sessionStorage.getItem("soundEnabled")) {
   soundEnabled = true;
   soundBanner.style.display = "none";
@@ -49,7 +68,6 @@ enableBtn.onclick = () => {
   sessionStorage.setItem("soundEnabled", "true");
 };
 
-// 📐 Math helpers
 function polarToCartesian(cx, cy, r, angleDeg) {
   const rad = (angleDeg - 90) * Math.PI / 180;
   return {
@@ -68,7 +86,6 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
 function drawMeter(level) {
   svg.innerHTML = "";
 
-  // Arcs
   for (let i = 0; i < 6; i++) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     const startAngle = -90 + i * 30;
@@ -78,7 +95,6 @@ function drawMeter(level) {
     svg.appendChild(path);
   }
 
-  // Needle
   const angle = -95 + (level - 0.5) * 30;
   const pos = polarToCartesian(150, 150, 75, angle);
   const needle = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -91,21 +107,51 @@ function drawMeter(level) {
   svg.appendChild(needle);
 }
 
-// 🧠 Track last level so we only play sound on change
 let lastLevel = null;
+let flashInterval = null;
 
-// 🔁 Sync from Firebase instantly
+function stopEvacMode() {
+  document.body.classList.remove("evacuate");
+  if (flashInterval) {
+    clearInterval(flashInterval);
+    flashInterval = null;
+  }
+  evacAudioElements.forEach(audio => {
+    audio.pause();
+    audio.currentTime = 0;
+  });
+}
+
 onValue(ref(db, "rageLevel"), snapshot => {
   const level = snapshot.val();
   if (level >= 1 && level <= 6) {
     drawMeter(level);
     label.textContent = `Level ${level} – ${rageLabels[level - 1]}`;
 
-    // 🔊 Play sound only on actual level change
     if (soundEnabled && level !== lastLevel) {
-      alertSound.pause();
-      alertSound.currentTime = 0;
-      alertSound.play().catch(() => {});
+      if (level === 6) {
+        // Activate evac mode
+        document.body.classList.add("evacuate");
+        evacAudioElements.forEach(audio => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        });
+        if (!flashInterval) {
+          flashInterval = setInterval(() => {
+            document.body.classList.toggle("evacuate-flash");
+          }, 500);
+        }
+      } else {
+        stopEvacMode();
+        baseAlert.pause();
+        baseAlert.currentTime = 0;
+        baseAlert.play().catch(() => {});
+      }
+    }
+
+    if (lastLevel === 6 && level !== 6) {
+      stopEvacMode();
     }
 
     lastLevel = level;
