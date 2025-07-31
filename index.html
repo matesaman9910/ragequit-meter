@@ -1,68 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ragequit Meter</title>
-  <script type="module" src="display.js" defer></script>
+  <meta charset="UTF-8">
+  <title>Project Ragequit-Meter Discontinued</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      margin: 0;
-      font-family: monospace;
-      background-color: black;
-      color: lime;
+      background-color: #0e0e0e;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
       height: 100vh;
-      overflow: hidden;
-      transition: background-color 0.5s;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
     }
-
-    body.evacuate {
-      background-color: darkred;
+    .message {
+      max-width: 900px;
     }
-
-    body.evacuate-flash {
-      background-color: red !important;
+    h1 {
+      font-size: 3.5rem;
+      color: #ff4c4c;
+      margin-bottom: 20px;
     }
-
-    #gauge {
-      width: 600px;
-      height: 600px;
+    p {
+      font-size: 1.8rem;
+      line-height: 1.5;
+      color: #ccc;
     }
-
-    #levelLabel {
-      font-size: 3em;
-      margin-top: 1em;
-    }
-
-    #soundWarning {
-      position: absolute;
-      top: 10px;
-      background: red;
-      color: white;
-      padding: 10px 20px;
-      font-size: 1.2em;
-      border-radius: 8px;
-      z-index: 100;
-    }
-
-    button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      font-size: 1.2em;
-      cursor: pointer;
+    span.thanks {
+      color: #4cff72;
     }
   </style>
 </head>
 <body>
-  <div id="soundWarning">
-    🔈 This page uses sound. <button id="enableSoundBtn">Enable Sound</button>
+  <div class="message">
+    <h1>😔 Project Ragequit-Meter Has Ended</h1>
+    <p>Sorry, but unfortunately <strong>Project Ragequit-Meter</strong> has been discontinued.</p>
+    <p><span class="thanks">Thank you for the support</span> and see you in my other projects! 👋</p>
   </div>
-
-  <svg id="gauge" viewBox="0 0 300 300"></svg>
-  <div id="levelLabel">Loading…</div>
 </body>
 </html>
