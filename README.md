@@ -1,1 +1,1 @@
-# ragequit-meter
+# Rage-Quit-Meter (DISCONTINUED)
